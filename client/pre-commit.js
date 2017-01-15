@@ -50,6 +50,10 @@ try{
 	LogUtil.writeLog('argv_depth: ' + argv_depth);
 	LogUtil.writeLog('argv_msgFilePath: ' + argv_msgFilePath);
 	LogUtil.writeLog('argv_cwd: ' + argv_cwd);
+	//config is a global var
+	config = getConfiguration();
+	if(!config.enable)
+		process.exit(0);
 	
 	collectChanges();
 	LogUtil.writeLog('collectChanges finish.');
@@ -59,6 +63,15 @@ try{
 } catch (err){
 	LogUtil.writeLog(new Error(err.toString()).stack);
 } 
+
+function getConfiguration(){
+	var path = path.join(__dirname, '/config');
+	if(!fs.existsSync(path)){
+		return {};
+	}
+	var str = fs.readFileSync(path);
+	return JSON.parse(str);
+}
 
 function collectChanges(){
 	changesFolder = path.join(__dirname, '/changes'), 
@@ -139,7 +152,7 @@ function sendChanges(zipFile){
 		var obj = {};
 		obj.fsize = fileSizeInBytes;
 		obj.fname = path.basename(zipFile);
-		obj.submitter = path.basename(process.env['USERPROFILE']);
+		obj.submitter = config.email;
 		client.write(JSON.stringify(obj), 'utf8');
 		//client.write('{"fsize":'+fileSizeInBytes+',"fname":"'+zipFile+'"}', 'utf8');
 		client.on('data', function(data){
@@ -155,6 +168,7 @@ function sendChanges(zipFile){
 			} else if(data == 'finish'){
 				LogUtil.writeLog("send zip file successfully. exiting...");
 				client.destroy();
+				showTips();
 				finish();
 			}
 		});
