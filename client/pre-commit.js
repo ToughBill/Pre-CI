@@ -9,8 +9,7 @@ var fs = require('fs'),
 
 	var startIdx = 2;
 	if(process.argv.length == 7){
-		var argv_isOnline = process.argv[startIdx] ? true : false;
-		startIdx++;
+		var argv_isOnline = process.argv[startIdx++] ? true : false;
 	}
 		
 var argv_lstFilePath = process.argv[startIdx++],
@@ -107,7 +106,10 @@ function collectChanges(){
 }
 
 function zipChanges(sendFunc){
-	var zipFile = path.join(__dirname,'/zipChanges.zip');
+	var zipChangesFolder = path.join(__dirname,'/zipChanges');
+	fse.ensureDirSync(zipChangesFolder);
+	var fileName = Date.now();
+	var zipFile = path.join(zipChangesFolder,'/'+fileName+'.zip');
 	if(fs.existsSync(zipFile)){
 		fse.removeSync(zipFile);
 	}

@@ -1,8 +1,8 @@
 var net = require('net'),
 	fs = require('fs'),
 	fse = require('fs-extra'),
-	path = require('path');
-	unzip = require('unzip2');
+	path = require('path'),
+	unzip = require('unzip2'),
 	buffer = require('buffer'),
 	iniParser = require('node-ini'),
 	child_process = require('child_process');

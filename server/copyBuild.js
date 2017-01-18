@@ -1,17 +1,15 @@
-var events = require('events'),
-	util = require('util'),
-	log = require('./log');
+var fs = require('fs'),
+	path = require('path'),
+	log = require('./log'),
+	iniParser = require('node-ini');
 
 function CopyBuild(){
-	events.EventEmitter.call(this);
-	
 	this.SOURCE_BUILD_PATH = 'P:\\TCS\\TCS\\win32_release\\Default';
 	this.DEFAULT_LATEST_BUILD = path.join(__dirname, '\\build\\Default');
 	this.ENV_CFG = 'env.cfg';
 	this.taskQueue = [];
 	this.isCloning = false;
 }
-util.inherits(CopyBuild, events.EventEmitter);
 
 var copier = new CopyBuild();
 copier.on('cloneDefault', function(config,cb){
@@ -24,7 +22,7 @@ CopyBuild.prototype.start = function(){
 	
 }
 
-CopyBuild.prototype.cloneDefault = function(cb){
+CopyBuild.prototype.cloneDefault = function(cfg, cb){
 	this.copySourceBuild();
 	var dt = Date.now();
 	var target = path.join(__dirname, '\\build\\' + dt);
@@ -32,7 +30,7 @@ CopyBuild.prototype.cloneDefault = function(cb){
 	log.writeLog("start to clone build");
 	fse.copySync(this.DEFAULT_LATEST_BUILD, target);
 	log.writeLog("end clone build");
-	
+	cfg.srcFolder = target;
 	cb();
 }
 CopyBuild.prototype.copySourceBuild = function(){
@@ -53,4 +51,24 @@ CopyBuild.prototype.copySourceBuild = function(){
 	fse.copySync(SOURCE_BUILD_PATH, DEFAULT_LATEST_BUILD);
 	var dte = new Date();
 	console.log("******  end copy source, time: " + dte.getMinutes() + ":" + dte.getSeconds() + "  ******");
-} 
+}
+
+CopyBuild.prototype.hasNewBuild = function(){
+	var curBuildCfg = path.join(this.DEFAULT_LATEST_BUILD, '/env.cfg');
+	if(!fs.existsSync(curBuildCfg)){
+		return true;
+	}
+
+	var cfgPath = path.join(this.SOURCE_BUILD_PATH, '/env.cfg');
+	var env = iniParser.parseSync(cfgPath);
+	var newBuildNo = env.ec_build_number;
+
+	env = iniParser.parseSync(curBuildCfg);
+	var curBuildNo = env.ec_build_number;
+
+	if(parseInt(newBuildNo) > parseInt(curBuildNo)){
+		return true;
+	}
+
+	return false;
+}
