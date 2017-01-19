@@ -2,17 +2,15 @@ var net = require('net'),
 	fs = require('fs'),
 	fse = require('fs-extra'),
 	path = require('path'),
-	buffer = require('buffer'),
 	log = require('./log'),
 	ciRunner = require('./ciRunner');
 
 var server = net.createServer(function(conn) {
 	log.writeLog('server connected');
 
-	var isReady = false, fsize = 0, fname='', receSize = 0, tarFile;
+	var isReady = false, fsize = 0, fname='', receSize = 0, tarFile, jsonDt;
 	conn.on('data', function(data) {
 		log.writeLog('data received');
-		var jsonDt;
 		if(!isReady){
 			jsonDt = JSON.parse(data);
 			log.writeLog('zip file info: ' + data);

@@ -61,14 +61,15 @@ try{
 	//process.exit(1);
 } catch (err){
 	LogUtil.writeLog(new Error(err.toString()).stack);
+	finish();
 } 
 
 function getConfiguration(){
-	var path = path.join(__dirname, '/config');
-	if(!fs.existsSync(path)){
+	var cfgPath = path.join(__dirname, '/config');
+	if(!fs.existsSync(cfgPath)){
 		return {};
 	}
-	var str = fs.readFileSync(path);
+	var str = fs.readFileSync(cfgPath);
 	return JSON.parse(str);
 }
 
