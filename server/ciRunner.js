@@ -86,3 +86,5 @@ CIRunner.prototype.addTask = function (config, cb) {
 		this.start();
 	});
 }
+
+module.exports = new CIRunner();

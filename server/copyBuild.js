@@ -11,11 +11,6 @@ function CopyBuild(){
 	this.isCloning = false;
 }
 
-var copier = new CopyBuild();
-copier.on('cloneDefault', function(config,cb){
-	this.taskQueue.push({config: config, cb: cb});
-})
-
 CopyBuild.prototype.start = function(){
 	if(this.isCloning || this.taskQueue.length <= 0)
 		return;
@@ -72,3 +67,5 @@ CopyBuild.prototype.hasNewBuild = function(){
 
 	return false;
 }
+
+module.exports = new CopyBuild();

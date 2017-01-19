@@ -19,4 +19,4 @@ Log.prototype.writeLog = function(str, withTime){
 	}
 }
 
-exports.log = new Log();
+module.exports = new Log();

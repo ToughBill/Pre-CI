@@ -50,9 +50,9 @@ var PORT = '9093';
 
 server.listen(PORT, HOST, function() {
 	//listening
-	log.writeLog('server bound to ' + PORT + '\n');
+	log.writeLog('server bound to ' + PORT );
 	server.on('connection', function(){
-		log.writeLog('connection made...\n')
+		log.writeLog('connection build...')
 	})
 });
 
