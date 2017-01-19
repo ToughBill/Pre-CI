@@ -82,9 +82,7 @@ CIRunner.prototype.runBat = function (cfg) {
 }
 CIRunner.prototype.addTask = function (config, cb) {
 	this.taskQueue.push({cfg: config, cb: cb});
-	process.nextTick(function(){
-		this.start();
-	});
+	process.nextTick(() => this.start());
 }
 
 module.exports = new CIRunner();
