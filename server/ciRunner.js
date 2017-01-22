@@ -21,6 +21,7 @@ CIRunner.prototype.start = function () {
 	}
 }
 CIRunner.prototype.runCI = function (cfg) {
+	log.writeLog("start to run CI", true);
 	var _this = this;
 	function cloneBuildCB(cfg){
 		_this.applyChanges(cfg);
@@ -77,9 +78,9 @@ CIRunner.prototype.copyExecutionFiles = function (cfg) {
 }
 CIRunner.prototype.runBat = function (cfg) {
 	var batFile = path.join(cfg.srcFolder, '/TC_DevTests/app/Extensions/Tools/TruClient_Pre-CI_execution.bat');
-	log.writeLog('start run bat: ' );
+	log.writeLog('start run bat: ', true);
 	var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd: path.dirname(batFile)});
-	log.writeLog('execute bat result: ' + ret);
+	log.writeLog('execute bat result: ' + ret, true);
 }
 CIRunner.prototype.addTask = function (config) {
 	this.taskQueue.push(config);

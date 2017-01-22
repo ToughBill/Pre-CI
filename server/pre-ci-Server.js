@@ -50,10 +50,11 @@ server.listen(PORT, HOST, function() {
 	//listening
 	log.writeLog('server bound to ' + PORT );
 	server.on('connection', function(){
-		log.writeLog('connection build...')
+		log.writeLog('connection build...');
 	})
 });
 
 process.on('uncaughtException', (err) => {
+	log.writeLog("CI execution finish", true);
 	fs.writeFileSync('uncaughtException.txt', err);
 });

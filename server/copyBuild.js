@@ -25,9 +25,9 @@ CopyBuild.prototype.cloneDefault = function(cfg, cb){
 	var dt = Date.now();
 	var target = path.join(this.ROOT_BUILD_FOLDER, '\\' + dt);
 	fse.mkdirsSync(target);
-	log.writeLog("start to clone build");
+	log.writeLog("start to clone build", true);
 	fse.copySync(this.DEFAULT_LATEST_BUILD, target);
-	log.writeLog("end clone build");
+	log.writeLog("end clone build", true);
 	cfg.srcFolder = target;
 	cb(cfg);
 }
@@ -43,12 +43,10 @@ CopyBuild.prototype.copySourceBuild = function(){
 	}
 	
 	var dts=new Date();
-	console.log("******  start copy source, time: " + dts.getMinutes() + ":" + dts.getSeconds() + "  ******");
-	console.log("******  source: " + this.SOURCE_BUILD_PATH + "  ******");
-	console.log("******  destination: " + this.DEFAULT_LATEST_BUILD + "  ******");
+	log.writeLog("start to copy source",true);
 	fse.copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
 	var dte = new Date();
-	console.log("******  end copy source, time: " + dte.getMinutes() + ":" + dte.getSeconds() + "  ******");
+	log.writeLog("end copy source",true);
 }
 
 CopyBuild.prototype.hasNewBuild = function(){

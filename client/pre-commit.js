@@ -192,6 +192,7 @@ function showTips() {
 }
 
 function finish(){
+	fse.emptyDirSync(changesFolder);
 	process.exit(1);
 }
 

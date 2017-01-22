@@ -211,10 +211,14 @@ REM import result to DB
 REM node %emailReportHelper_CI%\report.js CI
 
 REM Kill all tasks if exist
-taskkill /im "firefox.exe" /f /t
-taskkill /im "TcWebIELauncher.exe" /f /t
-taskkill /im "chrome.exe" /f /t
-taskkill /im "iexplore.exe" /f /t
+rem taskkill /im "firefox.exe" /f /t
+tasklist | find /i "firefox.exe" && taskkill /im firefox.exe /F /T || echo process "firefox.exe" not running.
+rem taskkill /im "TcWebIELauncher.exe" /f /t
+tasklist | find /i "TcWebIELauncher.exe" && taskkill /im TcWebIELauncher.exe /F /T || echo process "TcWebIELauncher.exe" not running.
+rem taskkill /im "chrome.exe" /f /t
+tasklist | find /i "chrome.exe" && taskkill /im chrome.exe /F /T || echo process "chrome.exe" not running.
+rem taskkill /im "iexplore.exe" /f /t
+tasklist | find /i "iexplore.exe" && taskkill /im iexplore.exe /F /T || echo process "iexplore.exe" not running.
 rem taskkill /im "cdb.exe" /f /t
 rem taskkill /im "crashreporter.exe" /f /t
 rem taskkill /im "node.exe" /f /t
