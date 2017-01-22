@@ -21,10 +21,11 @@ CIRunner.prototype.start = function () {
 	}
 }
 CIRunner.prototype.runCI = function (cfg) {
+	var _this = this;
 	function cloneBuildCB(cfg){
-		this.applyChanges(cfg);
-		this.copyExecutionFiles(cfg);
-		this.runBat(cfg);
+		_this.applyChanges(cfg);
+		_this.copyExecutionFiles(cfg);
+		_this.runBat(cfg);
 	}
 	function unzipChangesCB(){
 		log.writeLog('unzip changes close', true);
@@ -65,7 +66,7 @@ CIRunner.prototype.applyChanges = function(cfg){
 	}
 	log.writeLog("end applyChanges");
 }
-CIRunner.prototype.copyExecutionFiles = function () {
+CIRunner.prototype.copyExecutionFiles = function (cfg) {
 	var extFolder = path.join(__dirname, '/extFiles');
 	var destFolder = path.join(cfg.srcFolder, '/TC_DevTests/app');
 	fse.copySync(path.join(extFolder, '/TruClient_Pre-CI_execution.bat'), path.join(destFolder, '/Extensions/Tools/TruClient_Pre-CI_execution.bat'));
@@ -77,11 +78,11 @@ CIRunner.prototype.copyExecutionFiles = function () {
 CIRunner.prototype.runBat = function (cfg) {
 	var batFile = path.join(cfg.srcFolder, '/TC_DevTests/app/Extensions/Tools/TruClient_Pre-CI_execution.bat');
 	log.writeLog('start run bat: ' );
-	var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd:__dirname});
+	var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd: path.dirname(batFile)});
 	log.writeLog('execute bat result: ' + ret);
 }
-CIRunner.prototype.addTask = function (config, cb) {
-	this.taskQueue.push({cfg: config, cb: cb});
+CIRunner.prototype.addTask = function (config) {
+	this.taskQueue.push(config);
 	process.nextTick(() => this.start());
 }
 
