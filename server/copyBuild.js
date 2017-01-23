@@ -27,8 +27,8 @@ CopyBuild.prototype.cloneDefault = function(cfg, cb){
 	var target = path.join(this.ROOT_BUILD_FOLDER, '\\' + dt);
 	fse.mkdirsSync(target);
 	log.writeLog("start to clone build", true);
-	//fse.copySync(this.DEFAULT_LATEST_BUILD, target);
-	copySync(this.DEFAULT_LATEST_BUILD, target);
+	fse.copySync(this.DEFAULT_LATEST_BUILD, target);
+	//copySync(this.DEFAULT_LATEST_BUILD, target);
 	log.writeLog("end clone build", true);
 	cfg.srcFolder = target;
 	cb(cfg);

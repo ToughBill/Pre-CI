@@ -85,13 +85,15 @@ CIRunner.prototype.copyExecutionFiles = function (cfg) {
 }
 CIRunner.prototype.runBat = function (cfg) {
 	var batFile = path.join(cfg.srcFolder, '/TC_DevTests/app/Extensions/Tools/TruClient_Pre-CI_execution.bat');
-	log.writeLog('start run execution bat', true);
+	log.writeLog('start to run execution bat', true);
 	try{
-		var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd: path.dirname(batFile)});
+		var out = fs.openSync(path.join(cfg.changesFolder,'/ci_out.log'), 'a');
+		var err = fs.openSync(path.join(cfg.changesFolder,'/ci_err.log'), 'a');
+		var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd: path.dirname(batFile), stdio: ['ignore', out, err]});
 	} catch(ex){
 		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
 	}
-	log.writeLog('start run execution bat', true);
+	log.writeLog('execution finish', true);
 }
 CIRunner.prototype.addTask = function (config) {
 	this.taskQueue.push(config);
