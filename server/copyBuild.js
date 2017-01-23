@@ -2,7 +2,8 @@ var fs = require('fs'),
 	fse = require('fs-extra'),
 	path = require('path'),
 	log = require('./log'),
-	iniParser = require('node-ini');
+	iniParser = require('node-ini'),
+	child_process = require('child_process');
 
 function CopyBuild(){
 	this.SOURCE_BUILD_PATH = 'P:\\TCS\\TCS\\win32_release\\Default';
@@ -26,7 +27,8 @@ CopyBuild.prototype.cloneDefault = function(cfg, cb){
 	var target = path.join(this.ROOT_BUILD_FOLDER, '\\' + dt);
 	fse.mkdirsSync(target);
 	log.writeLog("start to clone build", true);
-	fse.copySync(this.DEFAULT_LATEST_BUILD, target);
+	//fse.copySync(this.DEFAULT_LATEST_BUILD, target);
+	copySync(this.DEFAULT_LATEST_BUILD, target);
 	log.writeLog("end clone build", true);
 	cfg.srcFolder = target;
 	cb(cfg);
@@ -44,7 +46,8 @@ CopyBuild.prototype.copySourceBuild = function(){
 	
 	var dts=new Date();
 	log.writeLog("start to copy source",true);
-	fse.copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
+	//fse.copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
+	copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
 	var dte = new Date();
 	log.writeLog("end copy source",true);
 }
@@ -68,5 +71,22 @@ CopyBuild.prototype.hasNewBuild = function(){
 
 	return false;
 }
+
+function copySync(source, target){
+	var ret = true;
+	try{
+		var exePath = path.join(__dirname, "/fastcopy/FastCopy.exe");
+		var retStr = child_process.execFileSync(exePath,["/cmd=diff", "/bufsize=1024", "/force_close", source, "/to=" + target],{cwd: __dirname});
+		log.writeLog("copy result:");
+		log.writeLog(retStr);
+
+	} catch(ex){
+		ret = false;
+		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
+	}
+
+	return ret;
+}
+
 
 module.exports = new CopyBuild();

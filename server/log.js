@@ -8,10 +8,10 @@ Log.prototype.init = function(cfg){
 }
 Log.prototype.writeLog = function(str, withTime){
 	var timeStr='';
-	if(withTime){
+	//if(withTime){
 		var dt = new Date();
 		timeStr = ', time: ' + dt.getHours() + ':' + dt.getMinutes() + ":" + dt.getSeconds();
-	}
+	//}
 	if(this.cfg.toFile){
 
 	} else {

@@ -12,27 +12,34 @@ function CIRunner(){
 }
 
 CIRunner.prototype.start = function () {
-	if(this.isWorking)
+	if(this.isWorking || this.taskQueue.length <= 0)
 		return;
-	
+
+	this.isWorking = true;
 	while(this.taskQueue.length > 0){
 		var cfg = this.taskQueue.shift();
 		this.runCI(cfg);
 	}
+	this.isWorking = false;
 }
 CIRunner.prototype.runCI = function (cfg) {
-	log.writeLog("start to run CI", true);
-	var _this = this;
-	function cloneBuildCB(cfg){
-		_this.applyChanges(cfg);
-		_this.copyExecutionFiles(cfg);
-		_this.runBat(cfg);
+	try{
+		log.writeLog("start to run CI", true);
+		var _this = this;
+		function cloneBuildCB(cfg){
+			_this.applyChanges(cfg);
+			_this.copyExecutionFiles(cfg);
+			_this.runBat(cfg);
+		}
+		function unzipChangesCB(){
+			log.writeLog('unzip changes close', true);
+			copyBuild.cloneDefault(cfg, cloneBuildCB);
+		}
+		this.unzipChanges(cfg, unzipChangesCB);
+	} catch (ex){
+		fs.writeFileSync('uncaughtException.txt', ex);
 	}
-	function unzipChangesCB(){
-		log.writeLog('unzip changes close', true);
-		copyBuild.cloneDefault(cfg, cloneBuildCB);
-	}
-	this.unzipChanges(cfg, unzipChangesCB);
+
 }
 CIRunner.prototype.unzipChanges = function(cfg, cb){
 	cfg.changesFolder = path.join(__dirname, '/unzipChanges/' + cfg.fname);
@@ -78,9 +85,13 @@ CIRunner.prototype.copyExecutionFiles = function (cfg) {
 }
 CIRunner.prototype.runBat = function (cfg) {
 	var batFile = path.join(cfg.srcFolder, '/TC_DevTests/app/Extensions/Tools/TruClient_Pre-CI_execution.bat');
-	log.writeLog('start run bat: ', true);
-	var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd: path.dirname(batFile)});
-	log.writeLog('execute bat result: ' + ret, true);
+	log.writeLog('start run execution bat', true);
+	try{
+		var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd: path.dirname(batFile)});
+	} catch(ex){
+		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
+	}
+	log.writeLog('start run execution bat', true);
 }
 CIRunner.prototype.addTask = function (config) {
 	this.taskQueue.push(config);
