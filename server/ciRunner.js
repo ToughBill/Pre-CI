@@ -24,7 +24,7 @@ CIRunner.prototype.start = function () {
 }
 CIRunner.prototype.runCI = function (cfg) {
 	try{
-		log.writeLog("start to run CI", true);
+		log.writeLog("start to run CI", log.LogType.Start);
 		var _this = this;
 		function cloneBuildCB(cfg){
 			_this.applyChanges(cfg);
@@ -32,7 +32,7 @@ CIRunner.prototype.runCI = function (cfg) {
 			_this.runBat(cfg);
 		}
 		function unzipChangesCB(){
-			log.writeLog('unzip changes close', true);
+			log.writeLog('unzip changes close');
 			copyBuild.cloneDefault(cfg, cloneBuildCB);
 		}
 		this.unzipChanges(cfg, unzipChangesCB);
@@ -85,7 +85,7 @@ CIRunner.prototype.copyExecutionFiles = function (cfg) {
 }
 CIRunner.prototype.runBat = function (cfg) {
 	var batFile = path.join(cfg.srcFolder, '/TC_DevTests/app/Extensions/Tools/TruClient_Pre-CI_execution.bat');
-	log.writeLog('start to run execution bat', true);
+	log.writeLog('start to run execution bat');
 	try{
 		var out = fs.openSync(path.join(cfg.changesFolder,'/ci_out.log'), 'a');
 		var err = fs.openSync(path.join(cfg.changesFolder,'/ci_err.log'), 'a');
@@ -93,7 +93,7 @@ CIRunner.prototype.runBat = function (cfg) {
 	} catch(ex){
 		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
 	}
-	log.writeLog('execution finish', true);
+	log.writeLog('CI execution finish', log.LogType.End);
 }
 CIRunner.prototype.addTask = function (config) {
 	this.taskQueue.push(config);

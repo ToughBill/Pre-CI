@@ -55,6 +55,6 @@ server.listen(PORT, HOST, function() {
 });
 
 process.on('uncaughtException', (err) => {
-	log.writeLog("CI execution finish", true);
+	log.writeLog("CI execution finish", log.LogType.End);
 	fs.writeFileSync('uncaughtException.txt', err);
 });
