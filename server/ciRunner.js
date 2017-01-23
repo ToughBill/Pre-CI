@@ -24,7 +24,9 @@ CIRunner.prototype.start = function () {
 }
 CIRunner.prototype.runCI = function (cfg) {
 	try{
-		log.writeLog("start to run CI", log.LogType.Start);
+		cfg.changesFolder = path.join(__dirname, '/unzipChanges/' + cfg.fname.substring(0, cfg.fname.indexOf(path.extname(cfg.fname))));
+		fse.ensureDirSync(cfg.changesFolder);
+		log.writeLog("start to run CI", cfg, log.LogType.Start);
 		var _this = this;
 		function cloneBuildCB(cfg){
 			_this.applyChanges(cfg);
@@ -42,10 +44,8 @@ CIRunner.prototype.runCI = function (cfg) {
 
 }
 CIRunner.prototype.unzipChanges = function(cfg, cb){
-	cfg.changesFolder = path.join(__dirname, '/unzipChanges/' + cfg.fname);
-	fse.ensureDirSync(cfg.changesFolder);
 	var unzipStream = unzip.Extract({ path: cfg.changesFolder })
-	unzipStream.on('error', function () { log.writeLog('unzip changes error') })
+	unzipStream.on('error', () => log.writeLog('unzip changes error') )
 	unzipStream.on('close', function () {
 		cb(cfg);
 	})
@@ -58,7 +58,7 @@ CIRunner.prototype.unzipChanges = function(cfg, cb){
 CIRunner.prototype.applyChanges = function(cfg){
 	var clInfo = fs.readFileSync(path.join(cfg.changesFolder,'/clInfo'));
 	var infoObj = JSON.parse(clInfo);
-	log.writeLog("begin applyChanges");
+	log.writeLog("begin applyChanges", cfg);
 	for(var name in infoObj.files){
 		var idx = name.indexOf('trunk');
 		if(idx < 0)
@@ -86,14 +86,16 @@ CIRunner.prototype.copyExecutionFiles = function (cfg) {
 CIRunner.prototype.runBat = function (cfg) {
 	var batFile = path.join(cfg.srcFolder, '/TC_DevTests/app/Extensions/Tools/TruClient_Pre-CI_execution.bat');
 	log.writeLog('start to run execution bat');
+	var out = fs.openSync(path.join(cfg.changesFolder,'/ci_out.log'), 'a');
+	var err = fs.openSync(path.join(cfg.changesFolder,'/ci_err.log'), 'a');
 	try{
-		var out = fs.openSync(path.join(cfg.changesFolder,'/ci_out.log'), 'a');
-		var err = fs.openSync(path.join(cfg.changesFolder,'/ci_err.log'), 'a');
 		var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd: path.dirname(batFile), stdio: ['ignore', out, err]});
 	} catch(ex){
 		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
 	}
-	log.writeLog('CI execution finish', log.LogType.End);
+	out.closeSync();
+	err.closeSync();
+	log.writeLog('CI execution finish', cfg, log.LogType.End);
 }
 CIRunner.prototype.addTask = function (config) {
 	this.taskQueue.push(config);

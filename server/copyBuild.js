@@ -26,10 +26,10 @@ CopyBuild.prototype.cloneDefault = function(cfg, cb){
 	var dt = Date.now();
 	var target = path.join(this.ROOT_BUILD_FOLDER, '\\' + dt);
 	fse.mkdirsSync(target);
-	log.writeLog("start to clone build", true);
+	log.writeLog("start to clone build");
 	fse.copySync(this.DEFAULT_LATEST_BUILD, target);
 	//copySync(this.DEFAULT_LATEST_BUILD, target);
-	log.writeLog("end clone build", true);
+	log.writeLog("end clone build");
 	cfg.srcFolder = target;
 	cb(cfg);
 }
@@ -38,18 +38,18 @@ CopyBuild.prototype.copySourceBuild = function(){
 		return;
 	}
 	if(fs.existsSync(this.DEFAULT_LATEST_BUILD)){
-		log.writeLog("delete old Default folder", true);
+		log.writeLog("delete old Default folder");
 		fse.removeSync(this.DEFAULT_LATEST_BUILD);
 		fse.mkdirsSync(this.DEFAULT_LATEST_BUILD);
-		log.writeLog("delete completely", true);
+		log.writeLog("delete completely");
 	}
 	
 	var dts=new Date();
-	log.writeLog("start to copy source",true);
+	log.writeLog("start to copy source");
 	//fse.copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
 	copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
 	var dte = new Date();
-	log.writeLog("end copy source",true);
+	log.writeLog("end copy source");
 }
 
 CopyBuild.prototype.hasNewBuild = function(){
