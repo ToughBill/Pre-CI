@@ -3,7 +3,7 @@ var net = require('net'),
 	fse = require('fs-extra'),
 	path = require('path'),
 	log = require('./log'),
-	ciRunner = require('./ciRunner');
+	ciTaskManager = require('./ciTaskManager');
 
 var server = net.createServer(function(conn) {
 	log.writeLog('server connected');
@@ -29,7 +29,7 @@ var server = net.createServer(function(conn) {
 				tarFile = fs.createWriteStream(destFile);
 				tarFile.on('close', function(){
 					jsonDt.zipFile = tarFile.path;
-					ciRunner.addTask(jsonDt);
+					ciTaskManager.addTask(jsonDt);
 				});
 			}
 

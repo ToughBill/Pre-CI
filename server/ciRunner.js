@@ -93,13 +93,22 @@ CIRunner.prototype.runBat = function (cfg) {
 	} catch(ex){
 		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
 	}
-	out.closeSync();
-	err.closeSync();
+	fs.closeSync(out);
+	fs.closeSync(err);
 	log.writeLog('CI execution finish', cfg, log.LogType.End);
+	runTaskCallBack(cfg);
 }
 CIRunner.prototype.addTask = function (config) {
 	this.taskQueue.push(config);
 	process.nextTick(() => this.start());
 }
 
-module.exports = new CIRunner();
+var runner = new CIRunner();
+process.on('message', function(msg) {
+	runner.addTask(msg);
+});
+
+function runTaskCallBack(cfg){
+	process.send(cfg);
+}
+//module.exports = new CIRunner();
