@@ -109,6 +109,9 @@ process.on('message', function(msg) {
 });
 
 function runTaskCallBack(cfg){
+	cfg.callback = function () {
+		process.exit();
+	};
 	process.send(cfg);
 }
 //module.exports = new CIRunner();

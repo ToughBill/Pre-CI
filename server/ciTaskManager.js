@@ -17,6 +17,7 @@ CITaskManager.prototype.runTask = function () {
 		return;
 
 	function execCB(msg){
+		log.writeLog("receive message from ci-runner process.")
 		if(this.taskQueue.length <= 0){
 			this.isWorking = false;
 			return;
@@ -35,7 +36,7 @@ CITaskManager.prototype.runTask = function () {
 }
 CITaskManager.prototype.addTask = function (task) {
 	this.taskQueue.push(task);
-	if(!this.isRunning){
+	if(this.isRunning){
 		return;
 	}
 	this.runTask();
