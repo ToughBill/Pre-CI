@@ -16,17 +16,18 @@ CITaskManager.prototype.runTask = function () {
 	if(this.isRunning || this.taskQueue.length <= 0)
 		return;
 
+	var _this = this;
 	function execCB(msg){
 		log.writeLog("receive message from ci-runner process.")
-		if(this.taskQueue.length <= 0){
-			this.isWorking = false;
+		if(_this.taskQueue.length <= 0){
+			_this.isRunning = false;
 			return;
 		}
-		var nextTask = this.taskQueue.shift();
-		this.runnerProcess.send(nextTask);
+		var nextTask = _this.taskQueue.shift();
+		_this.runnerProcess.send(nextTask);
 	}
 
-	this.isWorking = true;
+	this.isRunning = true;
 	var task = this.taskQueue.shift();
 	if(!this.runnerProcess){
 		this.runnerProcess = child_process.fork(__dirname + "/ciRunner.js");

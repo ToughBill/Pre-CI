@@ -25,20 +25,20 @@ Log.prototype.init = function(){
 Log.prototype.writeLog = function(str, taskCfg, logType){
 	var dt = new Date(), log;
 	var timeStr = ', time: ' + dt.getHours() + ':' + dt.getMinutes() + ":" + dt.getSeconds();
-	if(taskCfg){
-		switch(logType){
-			case this.LogType.Start:
-			case this.LogType.End:
-				log = "******  " + str + timeStr + "  ******";
-				break;
-			default:
-				log = "      ***  " + str + timeStr + "   ***      ";
-				break;
-		}
-	} else {
-		log = "******  " + str + timeStr + "  ******";
-	}
-
+	// if(taskCfg){
+	// 	switch(logType){
+	// 		case this.LogType.Start:
+	// 		case this.LogType.End:
+	// 			log = "******  " + str + timeStr + "  ******";
+	// 			break;
+	// 		default:
+	// 			log = "      ***  " + str + timeStr + "   ***      ";
+	// 			break;
+	// 	}
+	// } else {
+	// 	log = "******  " + str + timeStr + "  ******";
+	// }
+	log = str + timeStr;
 	if(this.cfg.toFile && taskCfg && taskCfg.changesFolder){
 		fs.appendFileSync(path.join(taskCfg.changesFolder, '/' + this.cfg.taskLogFileName), log + '\n', "utf8");
 	}
