@@ -84,12 +84,13 @@ CIRunner.prototype.copyExecutionFiles = function (cfg) {
 	fse.copySync(path.join(extFolder, '/timeManager.js'), path.join(destFolder, '/RnRHelper/CI/timeManager.js'));
 }
 CIRunner.prototype.runBat = function (cfg) {
-	var batFile = path.join(cfg.srcFolder, '/TC_DevTests/app/Extensions/Tools/TruClient_Pre-CI_execution.bat');
+	var batFileName = "TruClient_Pre-CI_execution.bat";
+	var batFilePath = path.join(cfg.srcFolder, '/TC_DevTests/app/Extensions/Tools');
 	log.writeLog('start to run execution bat');
 	var out = fs.openSync(path.join(cfg.changesFolder,'/ci_out.log'), 'a');
 	var err = fs.openSync(path.join(cfg.changesFolder,'/ci_err.log'), 'a');
 	try{
-		var ret = child_process.execFileSync(batFile,[cfg.srcFolder,cfg.submitter],{cwd: path.dirname(batFile), stdio: ['ignore', out, err]});
+		var ret = child_process.execFileSync(batFileName,[cfg.srcFolder,cfg.submitter],{cwd: batFilePath, stdio: ['ignore', out, err]});
 	} catch(ex){
 		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
 	}

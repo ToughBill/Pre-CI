@@ -13,12 +13,12 @@ function CITaskManager(){
 }
 
 CITaskManager.prototype.runTask = function () {
+	log.writeLog('run Task this.isRunning:' + this.isRunning + 'this.taskQueue.length:' + this.taskQueue.length);
 	if(this.isRunning || this.taskQueue.length <= 0)
 		return;
-
 	var _this = this;
 	function execCB(msg){
-		log.writeLog("receive message from ci-runner process.")
+		log.writeLog("receive message from ci-runner process. current task queue's length: " + _this.taskQueue.length)
 		if(_this.taskQueue.length <= 0){
 			_this.isRunning = false;
 			return;
@@ -37,6 +37,8 @@ CITaskManager.prototype.runTask = function () {
 }
 CITaskManager.prototype.addTask = function (task) {
 	this.taskQueue.push(task);
+	log.writeLog('addTask, current status:' + (this.isRunning ? 'running' : 'stop'));
+	
 	if(this.isRunning){
 		return;
 	}
