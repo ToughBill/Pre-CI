@@ -79,7 +79,7 @@ REM ****************************************************************************
 	xcopy %1\TC_DevTests\Scripts\CI\Replay\Common %SysTest_Chrome_replayScript% /S /Y /D || goto :errCopyChromeScripts
 	xcopy %1\TC_DevTests\Scripts\CI\Replay\Chrome %SysTest_Chrome_replayScript% /S /Y /D || goto :errCopyChromeScripts
 
-	REM ignore below scriptsq
+	REM ignore below scripts
 	if exist %SysTest_Chrome_replayScript%\javascript_variables_defined_init_negative rmdir /S /Q %SysTest_Chrome_replayScript%\javascript_variables_defined_init_negative
 
 	node %emailReportHelper_CI%\timeManager.js
@@ -111,7 +111,7 @@ REM ****************************************************************************
 	xcopy %1\TC_DevTests\Scripts\CI\Replay\Firefox %SysTest_FF_Interactive_replayScript% /S /Y /D || goto :errCopyFFscripts
 	xcopy %1\TC_DevTests\Scripts\CI\Record\Firefox %SysTest_FF_Interactive_recordReplayScript% /S /Y /D || goto :errCopyFFscripts
 
-	REM ignore below scriptsq
+	REM ignore below scripts
 	if exist %SysTest_FF_Interactive_replayScript%\javascript_variables_defined_init_negative rmdir /S /Q  %SysTest_FF_Interactive_replayScript%\javascript_variables_defined_init_negative
 
 	node %emailReportHelper_CI%\timeManager.js

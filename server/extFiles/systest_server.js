@@ -28,7 +28,7 @@ var express = require('express'),
 	server = http.createServer(app),
 	io = require('socket.io').listen(server,{ log: false });
 
-var browserTypes = ['SysTest_FF_Interactive', 'SysTest_IE_Interactive', 'SysTest_FF_LR_Interactive', 'SysTest_IE_LR_Interactive', 'SysTest_Chrome', 'SysTest_ChromeLite'];
+var browserTypes = ['SysTest_FF_Interactive', 'SysTest_IE_Interactive', 'SysTest_FF_LR_Interactive', 'SysTest_IE_LR_Interactive', 'SysTest_Chrome', 'SysTest_ChromeLite', 'SysTest_FirefoxLite'];
 var clientInfoArray;
 var lastPid = 0;
 var profileCount = 0;
@@ -55,7 +55,7 @@ var testSuiteName = undefined;
 var XML = require('xml');
 var execFile = require('child_process').execFile;
 var spawn = require('child_process').spawn;
-var serverEnv = {"testSettings":{"maxClients":{"FireFox":10,"IE":10,"Chrome":10}, "clientLaunchMode": ''}}; // default envronment
+var serverEnv = {"testSettings":{"maxClients":{"FireFox":10,"IE":10,"Chrome":10, "FirefoxLite":1}, "clientLaunchMode": ''}}; // default envronment
 var maxAllowedBrowserExceptions=9;
 var browserExceptions = 0;
 
@@ -464,6 +464,10 @@ function runNextTask(browserType)
 	if (browser === null) {
 		console.log(Date() + "  " + "!!!! did not find a free browser of type " + browserType + " to handle the next task");
 		pendingTaskList[browserType].push(task);
+		var browserArray = clientList[browserType];
+		if(browserArray && browserArray.length === 0){
+			launchClient(browserType);
+		}
 		return;
 	}
 
@@ -556,6 +560,10 @@ function buildTask(browserType, taskType, taskTypeDir, scriptName, taskId) {
 			scriptPath = taskTypeDir.concat("\\", scriptName, '\\default.zip');
 			break;
 		case "SysTest_ChromeLite":
+			scriptPath = taskTypeDir.concat("\\", scriptName, '\\', scriptName, '.zip');
+			scriptContent =new Buffer(fs.readFileSync(scriptPath)).toString('base64');
+			break;
+		case "SysTest_FirefoxLite":
 			scriptPath = taskTypeDir.concat("\\", scriptName, '\\', scriptName, '.zip');
 			scriptContent =new Buffer(fs.readFileSync(scriptPath)).toString('base64');
 			break;
@@ -895,6 +903,14 @@ function launchClient(browserType)
 		param.push("--load-extension=" + "C:\\TCSysTest\\TCChromeLite\\Extension");
 	}
 
+	if (browserType == 'SysTest_FirefoxLite'){
+		profileCount++;
+		var profilePath = 'C:\\TCSysTest\\FirefoxProfiles\\TCFirefoxUserData'.concat(profileCount);
+		copyFolderSync('C:\\TCSysTest\\FirefoxProfiles\\TCFirefoxUserData', profilePath);
+		param.push('-profile');
+		param.push(profilePath);
+	}
+
 	child = execFile(clientInfo.path, param, {}, execCallback);
 	child.browserType = browserType;
 	clientInfo.instances.push(child.pid);
@@ -913,6 +929,9 @@ function launchClient(browserType)
 			if(browserArray[i].pid == this.pid){
 				console.log(Date() + "  " + "*** Removed client of type " + this.browserType + " (number " + i + ", pid " + this.pid + ") ***");
 				browserArray.splice(i, 1);
+				if(browserArray.length === 0 && pendingTaskList[browserType].length > 0){
+					launchClient(browserType);
+				}
 				return;
 			}
 		}
@@ -1121,6 +1140,9 @@ io.sockets.on('connection', function(socket) {
 				console.log(Date() + "  " + "*** Removed client of type " + browserType + " (number " + i + ", original number " + originalClientId + ") ***");
 				// Socket will be removed when browser process exits
 				browserArray.splice(i, 1);
+				if(browserArray.length === 0 && pendingTaskList[browserType].length > 0){
+					launchClient(browserType);
+				}
 				return;
 			}
 		}
@@ -1250,6 +1272,15 @@ clientInfoArray = {
 			path: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
 			param: ["--disable-web-security", "--disable-popup-blocking",  "--enable-logging", "--ignore-certificate-errors", "--no-first-run", "--test-type", "--silent-debugger-extension-api"],
 			maxInstance: serverEnv.testSettings.maxClients.Chrome,
+			monitorProc: false,
+			requiredBrowser: 0,
+			instances: []
+		},
+		'SysTest_FirefoxLite':
+		{
+			path: 'C:\\Program Files (x86)\\Firefox Developer Edition\\firefox.exe',
+			param: ['-no-remote'],
+			maxInstance: serverEnv.testSettings.maxClients.FirefoxLite,
 			monitorProc: false,
 			requiredBrowser: 0,
 			instances: []

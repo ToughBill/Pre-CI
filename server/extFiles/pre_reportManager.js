@@ -8,12 +8,14 @@ var mailSubjectPrefix = 'TruClient CI ';
 var reportTitle = 'TruClient CI Automation';
 
 // create reusable transport method (opens pool of SMTP connections)
-var transport = nodemailer.createTransport("SMTP", {host: "smtp3.hpe.com"});
+var transport = nodemailer.createTransport("SMTP", {
+    host: "smtp3.hpe.com"
+});
 
 var pass = 0;
 var fail = 0;
 var warning = 0;
-//fs.writeFileSync('args.txt',process.argv.join(', '));
+
 var flag_BackwardCompatibilityHeader = false;
 var flag_JonesHeader = false;
 var flag_TransactionsHeader = false;
@@ -107,19 +109,17 @@ var isReplayScriptsExist = function () {
 
 function SendEmailReport(resultsArrayJSON) {
 
-    var html = getHeaderHTML(); // Get HTML Header
-    html = html + getBodyHTML(resultsArrayJSON); // Get HTML Body
-	console.log('###SendEmailReport to:'+process.argv[3]);
+    var html = getHeaderHTML();
+    html = html + getBodyHTML(resultsArrayJSON);
+
     // setup e-mail data with unicode symbols
-    var mailOptions =
-        {
-            from: "Pre-TC Automation <PreTCautomation@hpe.com>", // sender address
-            to: process.argv[3], // TO
-            //cc: mailSubscribers.CC, // CC
+    var mailOptions = {
+            from: "Pre-TC Automation <PreTCautomation@hpe.com>",
+            to: process.argv[3], 
+            //cc: mailSubscribers.CC, 
             subject: mailSubjectPrefix + statusSubject + ' [' + buildNumber + ' | ' + getMailSubject() + ']', // Subject line
-            text: "", // plaintext body
-            html: html,  // html body
-            // Attachments
+            text: "", 
+            html: html,   
             attachments: getAttachments()
         }
 
@@ -127,8 +127,7 @@ function SendEmailReport(resultsArrayJSON) {
     transport.sendMail(mailOptions, function (error, response) {
         if (error) {
             console.log(error);
-        }
-        else {
+        } else {
             console.log("Message sent: " + response.message);
         }
 
@@ -143,48 +142,39 @@ function getAttachments() {
         filename: "reportChart.png",
         filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\phantomjs\\reportChart.png', // Generated chart location
         cid: "unique@kreata.ee" //same cid value as in the html img src
-    },
-        {
-            filename: "passSmall.png",
-            filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\passSmall.png', // icon
-            cid: "unique@kreata.ee_smallPass"
-        },
-        {
-            filename: "failSmall.png",
-            filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\failSmall.png', // icon
-            cid: "unique@kreata.ee_smallFail"
-        },
-        {
-            filename: "warningSmall.png",
-            filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\warningSmall.png', // icon
-            cid: "unique@kreata.ee_smallWarning"
-        },
-        {
-            filename: "IE_icon.png",
-            filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\IE_icon.png', // icon
-            cid: "unique@kreata.ee_ie"
-        },
-        {
-            filename: "Firefox_icon.png",
-            filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\Firefox_icon.png', // icon
-            cid: "unique@kreata.ee_firefox"
-        },
-        {
-            filename: "Chrome_icon.png",
-            filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\Chrome_icon.png', // icon
-            cid: "unique@kreata.ee_chrome"
-        },
-        {
-            filename: "TC_IE_icon.png",
-            filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\TC_IE_icon.png', // icon
-            cid: "unique@kreata.ee_tc_ie"
-        },
-        {
-            filename: "TruClient.png",
-            filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\TruClient.png', // icon
-            cid: "unique@kreata.ee_TruClient"
-        }
-    ];
+    }, {
+        filename: "passSmall.png",
+        filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\passSmall.png', // icon
+        cid: "unique@kreata.ee_smallPass"
+    }, {
+        filename: "failSmall.png",
+        filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\failSmall.png', // icon
+        cid: "unique@kreata.ee_smallFail"
+    }, {
+        filename: "warningSmall.png",
+        filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\warningSmall.png', // icon
+        cid: "unique@kreata.ee_smallWarning"
+    }, {
+        filename: "IE_icon.png",
+        filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\IE_icon.png', // icon
+        cid: "unique@kreata.ee_ie"
+    }, {
+        filename: "Firefox_icon.png",
+        filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\Firefox_icon.png', // icon
+        cid: "unique@kreata.ee_firefox"
+    }, {
+        filename: "Chromium_icon.png",
+        filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\Chromium_icon.png', // icon
+        cid: "unique@kreata.ee_chromium"
+    }, {
+        filename: "Chrome_icon.png",
+        filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\Chrome_icon.png', // icon
+        cid: "unique@kreata.ee_chrome"
+    }, {
+        filename: "TruClient.png",
+        filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\TruClient.png', // icon
+        cid: "unique@kreata.ee_TruClient"
+    }];
 
     // Black & White icons
     if (summaryJSON.Fail == 0)
@@ -215,8 +205,7 @@ function getAttachments() {
             filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\durationIncrease.png',
             cid: "unique@kreata.ee_durationIncrease"
         });
-    }
-    else {
+    } else {
         result.push({
             filename: "durationDecrease.png",
             filePath: 'C:\\tc_trunk\\EmailReportHelper_CI\\icons\\durationDecrease.png',
@@ -250,45 +239,45 @@ function getAttachments() {
 function getHeaderHTML() {
     var now = new Date;
 
-    var html = '<head>'
-        + '<table width="100%"><tr>'
-        + '<td style="white-space: nowrap"><font size="7" face="calibri" color="#0096D6">' + reportTitle + '</font></td>'
-        + '<td style="white-space: nowrap"><img align="right" src="cid:unique@kreata.ee_TruClient" /></td>'
-        + '</tr></table>'
-        + '<hr><br>';
+    var html = '<head>' +
+        '<table width="100%"><tr>' +
+        '<td style="white-space: nowrap"><font size="7" face="calibri" color="#0096D6">' + reportTitle + '</font></td>' +
+        '<td style="white-space: nowrap"><img align="right" src="cid:unique@kreata.ee_TruClient" /></td>' +
+        '</tr></table>' +
+        '<hr><br>';
 
 
-    html += '<table width="100%">'
-        + '<tr><td style="white-space: nowrap"><font size="6" face="Calibri">Online Report Center</font></td></tr>'
-        + '<tr><td><a href="http://myd-vm03063.hpeswlab.net:60000/view_ci/ci.html">http://myd-vm03063.hpeswlab.net:60000/view_ci/ci.html</a></td></tr>'
-        + '</table>'
-        + '<hr><br>';
+    html += '<table width="100%">' +
+        '<tr><td style="white-space: nowrap"><font size="6" face="Calibri">Online Report Center</font></td></tr>' +
+        '<tr><td><a href="http://myd-vm03063.hpeswlab.net:60000/view_ci/ci.html">http://myd-vm03063.hpeswlab.net:60000/view_ci/ci.html</a></td></tr>' +
+        '</table>' +
+        '<hr><br>';
 
 
-    html += '<table width="100%">'
-        + '<tr>'
-        + '<td colspan="4" align="left" style="white-space: nowrap"><font size="6" face="Calibri">Execution Results</font></td>'
-        + getExecutionStatusHTML(status)
-        + '</tr>'
-        + '<tr><td colspan="1"></td></tr>'
-        + '<tr><font face="calibri">'
-        + '<td width="25%" style="white-space: nowrap"><b>Date:</b> ' + now.toLocaleDateString() + ' ' + now.toLocaleTimeString()
-        + '</br><b>Duration:</b> ' + elapsedTime + ' ' + showDurationActualStatus()
-        + '</br><b>Build number:</b> ' + buildNumber
-        + '</br><b>OS Name:</b> ' + systemInfo.OS
-        + '</br><b>Browsers:</b> ' + systemInfo.IE + ' / ' + systemInfo.Firefox + ' / ' + systemInfo.Chromium + '/' + systemInfo.Chrome
-        + '</br><b>Host Name:</b> ' + systemInfo.Host
-        + '</br><b>Console logs:</b> '
-        + '<a href="\\\\' + systemInfo.Host + '.hpeswlab.net\\TC_Console_Logs\\' + buildNumber + '\\"' + ' style="text-decoration:none;">Replay & Console logs</a>'
-        + '</br><b>Systest server logs:</b> '
-        + '<a href="\\\\' + systemInfo.Host + '.hpeswlab.net\\TC_Systest_Server_Logs\\' + buildNumber + '\\"' + ' style="text-decoration:none;">Systest server logs</a>'
-        + '</br>'
-        + '</br>' + getCommitterInfo() + '</td>'
-        + getExecutionResultsTitle()
-        + '</tr></font>'
-        + '</table>'
-        + '<hr>'
-        + '</head>';
+    html += '<table width="100%">' +
+        '<tr>' +
+        '<td colspan="4" align="left" style="white-space: nowrap"><font size="6" face="Calibri">Execution Results</font></td>' +
+        getExecutionStatusHTML(status) +
+        '</tr>' +
+        '<tr><td colspan="1"></td></tr>' +
+        '<tr><font face="calibri">' +
+        '<td width="25%" style="white-space: nowrap"><b>Date:</b> ' + now.toLocaleDateString() + ' ' + now.toLocaleTimeString() +
+        '</br><b>Duration:</b> ' + elapsedTime + ' ' + showDurationActualStatus() +
+        '</br><b>Build number:</b> ' + buildNumber +
+        '</br><b>OS Name:</b> ' + systemInfo.OS +
+        '</br><b>Browsers:</b> ' + systemInfo.IE + ' / ' + systemInfo.Firefox + ' / ' + systemInfo.Chromium + '/' + systemInfo.Chrome +
+        '</br><b>Host Name:</b> ' + systemInfo.Host +
+        '</br><b>Console logs:</b> ' +
+        '<a href="\\\\' + systemInfo.Host + '.hpeswlab.net\\TC_Console_Logs\\' + buildNumber + '\\"' + ' style="text-decoration:none;">Replay & Console logs</a>' +
+        '</br><b>Systest server logs:</b> ' +
+        '<a href="\\\\' + systemInfo.Host + '.hpeswlab.net\\TC_Systest_Server_Logs\\' + buildNumber + '\\"' + ' style="text-decoration:none;">Systest server logs</a>' +
+        '</br>' +
+        '</br>' + getCommitterInfo() + '</td>' +
+        getExecutionResultsTitle() +
+        '</tr></font>' +
+        '</table>' +
+        '<hr>' +
+        '</head>';
 
     return html;
 
@@ -305,15 +294,14 @@ function getExecutionStatusHTML(exeStatus) {
 function showDurationActualStatus() {
     if (isDurationTimeIncreased()) {
         return '<img src="cid:unique@kreata.ee_durationIncrease" />';
-    }
-    else {
+    } else {
         return '<img src="cid:unique@kreata.ee_durationDecrease" />';
     }
 }
 
 function getCommitterInfo() {
     //var committersArray = mailSubscribers.TO;
-	var committersArray = [process.argv[3]];
+    var committersArray = [process.argv[3]];
     var result = '';
 
     if (committersArray.length > 1) {
@@ -321,11 +309,9 @@ function getCommitterInfo() {
         for (var i = 1; i < committersArray.length; i++) {
             result += ', ' + committersArray[i];
         }
-    }
-    else if (committersArray[0]) { // Not null or undefined
+    } else if (committersArray[0]) { // Not null or undefined
         result += '1 commit by ' + committersArray[0].toString() + '</td>'
-    }
-    else {
+    } else {
         result += 'No committers were found ...'
     }
 
@@ -369,18 +355,17 @@ function getExecutionResultsTitle() {
 function getBodyHTML(resultsArrayJSON) {
     var result = createReportTable(resultsArrayJSON);
 
-    var html = '<body>'
-        + '<br>'
-        + '<div align="left"><font size="6" face="Calibri">Results History</font></div>'
-        + '<br>'
-        + '<p><div align="center"><img src="cid:unique@kreata.ee"/></div></p>';
+    var html = '<body>' +
+        '<br>' +
+        '<div align="left"><font size="6" face="Calibri">Results History</font></div>' +
+        '<br>' +
+        '<p><div align="center"><img src="cid:unique@kreata.ee"/></div></p>';
 
     if (!status) {
         html += '<hr><br><div align="left"><font size="6" color="#FF0000" face="Calibri">Failed Scripts</font></div></br>';
         html += result.tableFailed;
         html += '</br><hr></br>';
-    }
-    ;
+    };
 
     //html += '<div align="left"><font size="6" face="Calibri">Execution Detail Report</font></div></br>';
     //html += result.table;
@@ -558,7 +543,10 @@ function createReportTable(testResultsArrayJSON) {
     // Table footer
     table = table + '</table></div>';
 
-    return {'tableFailed': tableFailed, 'table': table};
+    return {
+        'tableFailed': tableFailed,
+        'table': table
+    };
 }
 
 // Create new Table Row using JSON object
@@ -721,11 +709,11 @@ function getResultsTableRow(testResultsJSON) {
 
     // Browser
     if (testResultsJSON.Browser.indexOf('IE') != -1)
-        tableRow = tableRow + '<td style="padding-left:20px; white-space: nowrap;">' + '<img src="cid:unique@kreata.ee_tc_ie" alt="IE" />&nbsp' + testResultsJSON.Browser + '</td>';
+        tableRow = tableRow + '<td style="padding-left:20px; white-space: nowrap;">' + '<img src="cid:unique@kreata.ee_ie" alt="IE" />&nbsp' + testResultsJSON.Browser + '</td>';
     else if (testResultsJSON.Browser.indexOf('Firefox') != -1)
         tableRow = tableRow + '<td style="padding-left:20px; white-space: nowrap;">' + '<img src="cid:unique@kreata.ee_firefox" alt="Firefox" />&nbsp' + testResultsJSON.Browser + '</td>';
     else if (testResultsJSON.Browser.indexOf('Chrome') != -1)
-        tableRow = tableRow + '<td style="padding-left:20px; white-space: nowrap;">' + '<img src="cid:unique@kreata.ee_chrome" alt="Chrome" />&nbsp' + testResultsJSON.Browser + '</td>';
+        tableRow = tableRow + '<td style="padding-left:20px; white-space: nowrap;">' + '<img src="cid:unique@kreata.ee_chromium" alt="Chrome" />&nbsp' + testResultsJSON.Browser + '</td>';
     else if (testResultsJSON.Browser.indexOf('ChromeLite') != -1)
         tableRow = tableRow + '<td style="padding-left:20px; white-space: nowrap;">' + '<img src="cid:unique@kreata.ee_chrome" alt="ChromeLite" />&nbsp' + testResultsJSON.Browser + '</td>';
 
@@ -783,17 +771,13 @@ function getMailSubject() {
 
     if (systemInfo.OS.indexOf('Windows 7') != -1) {
         result = 'Win7 | ' + 'IE' + ie[ie.length - 1] + ' | FF' + ff[ff.length - 1] + ' | ' + chromium[0] + chromium[1] + ' | Chrome' + chrome[chrome.length - 1];
-    }
-    else if (systemInfo.OS.indexOf('Windows 8.1') != -1) {
+    } else if (systemInfo.OS.indexOf('Windows 8.1') != -1) {
         result = 'Win8.1 | ' + 'IE' + ie[ie.length - 1] + ' | FF' + ff[ff.length - 1] + ' | ' + chromium[0] + chromium[1] + ' | Chrome' + chrome[chrome.length - 1];
-    }
-    else if (systemInfo.OS.indexOf('Windows 8') != -1) {
+    } else if (systemInfo.OS.indexOf('Windows 8') != -1) {
         result = 'Win8 | ' + 'IE' + ie[ie.length - 1] + ' | FF' + ff[ff.length - 1] + ' | ' + chromium[0] + chromium[1] + ' | Chrome' + chrome[chrome.length - 1];
-    }
-    else if (systemInfo.OS.indexOf('Windows Server 2008 R2') != -1) {
+    } else if (systemInfo.OS.indexOf('Windows Server 2008 R2') != -1) {
         result = 'Win Server 2K8 R2 | ' + 'IE' + ie[ie.length - 1] + ' | FF' + ff[ff.length - 1] + ' | ' + chromium[0] + chromium[1] + ' | Chrome' + chrome[chrome.length - 1];
-    }
-    else if (systemInfo.OS.indexOf('Windows Server 2012 R2') != -1) {
+    } else if (systemInfo.OS.indexOf('Windows Server 2012 R2') != -1) {
         result = 'Win Server 2012 R2 | ' + 'IE' + ie[ie.length - 1] + ' | FF' + ff[ff.length - 1] + ' | ' + chromium[0] + chromium[1] + ' | Chrome' + chrome[chrome.length - 1];
     }
 
