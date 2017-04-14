@@ -2,7 +2,8 @@ var net = require('net'),
 	fs = require('fs'),
 	fse = require('fs-extra'),
 	path = require('path'),
-	log = require('./log');
+	log = require('./log'),
+	ciTaskManager = require('./ciTaskManager');
 
 var server = net.createServer(function(conn) {
 	log.writeLog('server connected');
