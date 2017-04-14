@@ -19,6 +19,7 @@ CIRunner.prototype.runCI = function (cfg) {
 			_this.applyChanges(cfg);
 			_this.copyExecutionFiles(cfg);
 			_this.runBat(cfg);
+			_this.clearRunningFiles(cfg);
 		}
 		this.unzipChanges(cfg, unzipChangesCB);
 	} catch (ex){
@@ -81,6 +82,11 @@ CIRunner.prototype.runBat = function (cfg) {
 	fs.closeSync(err);
 	log.writeLog('CI execution finish', cfg, log.LogType.End);
 	runTaskCallBack(cfg);
+}
+CIRunner.prototype.clearRunningFiles = function (cfg) {
+	fse.removeSync(cfg.zipFile);
+	fse.removeSync(changesFolder);
+	fse.removeSync(cfg.srcFolder);
 }
 CIRunner.prototype.addTask = function (config) {
 	this.taskQueue.push(config);

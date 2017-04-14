@@ -45,8 +45,9 @@ CopyBuild.prototype.cloneDefault = function(cfg, cb){
 	cb(cfg);
 }
 CopyBuild.prototype.getBuildPath = function (cfg) {
-	this.taskQueue.add(cfg);
+	this.taskQueue.push(cfg);
 	if(this.copyingSource || this.cloningBuild){
+		log.writeLog((this.copyingSource ? "copying source now" : "cloning build now") + ", wait.");
 		return;
 	}
 	this.startClone();

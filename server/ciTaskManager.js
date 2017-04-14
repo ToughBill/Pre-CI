@@ -37,15 +37,18 @@ CITaskManager.prototype.runTask = function () {
 	this.runnerProcess.send(task);
 }
 CITaskManager.prototype.addTask = function (task) {
+	log.writeLog("send getBuildPath message to copy-build-process.");
 	this.copyBuildProcess.send({"getBuildPath": task});
 }
 
 CITaskManager.prototype.lanuchCopyProcess = function () {
+	log.writeLog("lanuch copy-build-process.");
 	this.copyBuildProcess = child_process.fork(__dirname + "/copyBuildWorker.js");
 	this.copyBuildProcess.on("message", (msg) => {
 		this.taskQueue.push(msg);
-		log.writeLog('addTask, current status:' + (this.isRunning ? 'running' : 'stop'));
+		log.writeLog("get the build path.");
 		if(this.isRunning){
+			log.writeLog("another ci task is running, wait.");
 			return;
 		}
 		this.runTask();
