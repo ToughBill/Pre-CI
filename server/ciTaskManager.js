@@ -10,6 +10,7 @@ function CITaskManager(){
 	this.taskQueue = [];
 	this.isRunning = false;
 	this.runnerProcess = null;
+	this.copyBuildProcess = null;
 }
 
 CITaskManager.prototype.runTask = function () {
@@ -36,13 +37,19 @@ CITaskManager.prototype.runTask = function () {
 	this.runnerProcess.send(task);
 }
 CITaskManager.prototype.addTask = function (task) {
-	this.taskQueue.push(task);
-	log.writeLog('addTask, current status:' + (this.isRunning ? 'running' : 'stop'));
-	
-	if(this.isRunning){
-		return;
-	}
-	this.runTask();
+	this.copyBuildProcess.send({"getBuildPath": task});
+}
+
+CITaskManager.prototype.lanuchCopyProcess = function () {
+	this.copyBuildProcess = child_process.fork(__dirname + "/copyBuildWorker.js");
+	this.copyBuildProcess.on("message", (msg) => {
+		this.taskQueue.push(msg);
+		log.writeLog('addTask, current status:' + (this.isRunning ? 'running' : 'stop'));
+		if(this.isRunning){
+			return;
+		}
+		this.runTask();
+	});
 }
 
 module.exports = new CITaskManager();

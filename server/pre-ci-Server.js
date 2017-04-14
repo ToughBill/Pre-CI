@@ -2,8 +2,7 @@ var net = require('net'),
 	fs = require('fs'),
 	fse = require('fs-extra'),
 	path = require('path'),
-	log = require('./log'),
-	ciTaskManager = require('./ciTaskManager');
+	log = require('./log');
 
 var server = net.createServer(function(conn) {
 	log.writeLog('server connected');
@@ -53,6 +52,8 @@ server.listen(PORT, HOST, function() {
 		log.writeLog('connection build...');
 	})
 });
+
+ciTaskManager.lanuchCopyProcess();
 
 process.on('uncaughtException', (err) => {
 	log.writeLog("CI execution finish", log.LogType.End);

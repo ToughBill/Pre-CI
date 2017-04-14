@@ -3,39 +3,22 @@ var fs = require('fs'),
 	path = require('path'),
 	unzip = require('unzip2'),
 	log = require('./log'),
-	copyBuild = require('./copyBuild'),
 	child_process = require('child_process');
 
-function CIRunner(){
-	this.taskQueue = [];
-	this.isWorking = false;
-}
+function CIRunner(){}
 
-CIRunner.prototype.start = function () {
-	if(this.isWorking || this.taskQueue.length <= 0)
-		return;
-
-	this.isWorking = true;
-	while(this.taskQueue.length > 0){
-		var cfg = this.taskQueue.shift();
-		this.runCI(cfg);
-	}
-	this.isWorking = false;
-}
 CIRunner.prototype.runCI = function (cfg) {
 	try{
 		cfg.changesFolder = path.join(__dirname, '/unzipChanges/' + cfg.fname.substring(0, cfg.fname.indexOf(path.extname(cfg.fname))));
 		fse.ensureDirSync(cfg.changesFolder);
-		log.writeLog("start to run CI", cfg, log.LogType.Start);
+		log.writeLog("start to run CI");
 		var _this = this;
-		function cloneBuildCB(cfg){
+
+		function unzipChangesCB(){
+			log.writeLog('unzip changes close');
 			_this.applyChanges(cfg);
 			_this.copyExecutionFiles(cfg);
 			_this.runBat(cfg);
-		}
-		function unzipChangesCB(){
-			log.writeLog('unzip changes close');
-			copyBuild.cloneDefault(cfg, cloneBuildCB);
 		}
 		this.unzipChanges(cfg, unzipChangesCB);
 	} catch (ex){
@@ -106,7 +89,7 @@ CIRunner.prototype.addTask = function (config) {
 
 var runner = new CIRunner();
 process.on('message', function(msg) {
-	runner.addTask(msg);
+	runner.runCI(msg);
 });
 
 function runTaskCallBack(cfg){

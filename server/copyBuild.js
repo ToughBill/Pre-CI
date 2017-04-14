@@ -9,7 +9,7 @@ function CopyBuild(){
 	this.SOURCE_BUILD_PATH = 'P:\\TCS\\TCS\\win32_release\\Default';
 	this.ROOT_BUILD_FOLDER = "c:\\precibuild";
 	this.DEFAULT_LATEST_BUILD = path.join(this.ROOT_BUILD_FOLDER, '\\Default');
-	
+
 	this.ENV_CFG = 'env.cfg';
 	this.taskQueue = [];
 	this.isCloning = false;
@@ -18,7 +18,15 @@ function CopyBuild(){
 CopyBuild.prototype.start = function(){
 	if(this.isCloning || this.taskQueue.length <= 0)
 		return;
-	
+
+	function watchFunc() {
+		if(this.isCloning) return;
+		if(this.hasNewBuild()){
+			this.copySourceBuild();
+		}
+	}
+
+	setInterval(watchFunc, 60*1000);
 }
 
 CopyBuild.prototype.cloneDefault = function(cfg, cb){
@@ -33,23 +41,76 @@ CopyBuild.prototype.cloneDefault = function(cfg, cb){
 	cfg.srcFolder = target;
 	cb(cfg);
 }
-CopyBuild.prototype.copySourceBuild = function(){
-	if(!this.hasNewBuild()){
+CopyBuild.prototype.getBuildPath = function (cfg) {
+	this.taskQueue.add(cfg);
+	if(this.isCloning){
 		return;
 	}
+	this.startClone(cfg);
+}
+CopyBuild.prototype.startClone = function (cfg) {
+	if(this.taskQueue.length <= 0) {
+		this.isCloning = false;
+		return;
+	}
+	var task = this.taskQueue.shift();
+	var dt = Date.now();
+	var target = path.join(this.ROOT_BUILD_FOLDER, '\\' + dt);
+	fse.mkdirsSync(target);
+	log.writeLog("start to clone build");
+	fse.copy(this.DEFAULT_LATEST_BUILD, target, err => {
+		log.writeLog("end clone build");
+		cfg.srcFolder = target;
+		setPathBack(cfg);
+		this.startClone();
+	});
+}
+CopyBuild.prototype.copySourceBuild = function(){
+	// if(!this.hasNewBuild()){
+	// 	return;
+	// }
+	this.isCloning = true;
+	var _this = this;
+
+	function internalCopy(source, target){
+		var ret = true, retStr;
+		try{
+			var exePath = path.join(__dirname, "/fastcopy/FastCopy.exe");
+			child_process.execFile(exePath,["/cmd=diff", "/bufsize=1024", "/force_close", source, "/to=" + target],{cwd: __dirname}, function(err, stdout, stderr){
+				_this.isCloning = false;
+				if(err){
+					ret = false;
+					retStr = stderr;
+				} else {
+					ret = true;
+					retStr = stdout;
+				}
+
+				log.writeLog("copy result:");
+				log.writeLog(retStr);
+				var dte = new Date();
+				log.writeLog("end copy source");
+			});
+		} catch(ex){
+			ret = false;
+			fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
+		}
+
+		return ret;
+	}
+
 	if(fs.existsSync(this.DEFAULT_LATEST_BUILD)){
 		log.writeLog("delete old Default folder");
-		fse.removeSync(this.DEFAULT_LATEST_BUILD);
-		fse.mkdirsSync(this.DEFAULT_LATEST_BUILD);
-		log.writeLog("delete completely");
+		fse.remove(this.DEFAULT_LATEST_BUILD, err => {
+			fse.mkdirsSync(this.DEFAULT_LATEST_BUILD);
+			log.writeLog("delete completely");
+
+			var dts=new Date();
+			log.writeLog("start to copy source");
+			//fse.copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
+			internalCopy(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
+		});
 	}
-	
-	var dts=new Date();
-	log.writeLog("start to copy source");
-	//fse.copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
-	copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
-	var dte = new Date();
-	log.writeLog("end copy source");
 }
 
 CopyBuild.prototype.hasNewBuild = function(){
@@ -72,21 +133,16 @@ CopyBuild.prototype.hasNewBuild = function(){
 	return false;
 }
 
-function copySync(source, target){
-	var ret = true;
-	try{
-		var exePath = path.join(__dirname, "/fastcopy/FastCopy.exe");
-		var retStr = child_process.execFileSync(exePath,["/cmd=diff", "/bufsize=1024", "/force_close", source, "/to=" + target],{cwd: __dirname});
-		log.writeLog("copy result:");
-		log.writeLog(retStr);
+var copyInst = new CopyBuild();
+copyInst.start();
 
-	} catch(ex){
-		ret = false;
-		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
+process.on('message', function(msg) {
+	if(msg.hasOwnProperty("getBuildPath")){
+		copyInst.getBuildPath(msg["getBuildPath"]);
 	}
+});
 
-	return ret;
+function setPathBack(cfg){
+	process.send(cfg);
 }
-
-
-module.exports = new CopyBuild();
+//module.exports = new CopyBuild();
