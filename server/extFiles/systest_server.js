@@ -889,7 +889,7 @@ function launchClient(browserType)
 		copyFolderSync('C:\\TCSysTest\\ChromeProfiles\\TCChromeUserData', profilePath);
 		param.push('--user-data-dir='+profilePath);
 
-		param.push("http://127.0.0.1:0/tc_home.html?-ExtensionRoot=C:\\TCSysTest\\TCChrome\\Extension&-TC_ADDIN=SysTest_Chrome")
+		param.push("http://0.0.0.0/tc_home.html?-ExtensionRoot=C:\\TCSysTest\\TCChrome\\Extension&-TC_ADDIN=SysTest_Chrome")
 		param.push("--load-extension=" + "C:\\TCSysTest\\TCChrome\\Extension");
 	}
 	
@@ -899,7 +899,7 @@ function launchClient(browserType)
 		copyFolderSync('C:\\TCSysTest\\ChromeProfiles\\TCChromeUserData', profilePath);
 		param.push('--user-data-dir='+profilePath);
 
-		//param.push("http://127.0.0.1:0/tc_home.html?-TC_ADDIN=SysTest_ChromeLite")
+		//param.push("http://0.0.0.0/tc_home.html?-TC_ADDIN=SysTest_ChromeLite")
 		param.push("--load-extension=" + "C:\\TCSysTest\\TCChromeLite\\Extension");
 	}
 
