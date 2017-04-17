@@ -85,7 +85,7 @@ CIRunner.prototype.runBat = function (cfg) {
 }
 CIRunner.prototype.clearRunningFiles = function (cfg) {
 	fse.removeSync(cfg.zipFile);
-	fse.removeSync(changesFolder);
+	fse.removeSync(cfg.changesFolder);
 	fse.removeSync(cfg.srcFolder);
 }
 CIRunner.prototype.addTask = function (config) {

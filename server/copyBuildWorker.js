@@ -25,6 +25,7 @@ CopyBuild.prototype.start = function(){
 	function watchFunc() {
 		if(_this.copyingSource || _this.cloningBuild) return;
 		if(_this.hasNewBuild()){
+			log.writeLog("new build found, start to copy");
 			_this.copySourceBuild();
 		}
 	}
@@ -32,18 +33,6 @@ CopyBuild.prototype.start = function(){
 	this.isWorking = true;
 }
 
-CopyBuild.prototype.cloneDefault = function(cfg, cb){
-	this.copySourceBuild();
-	var dt = Date.now();
-	var target = path.join(this.ROOT_BUILD_FOLDER, '\\' + dt);
-	fse.mkdirsSync(target);
-	log.writeLog("start to clone build");
-	fse.copySync(this.DEFAULT_LATEST_BUILD, target);
-	//copySync(this.DEFAULT_LATEST_BUILD, target);
-	log.writeLog("end clone build");
-	cfg.srcFolder = target;
-	cb(cfg);
-}
 CopyBuild.prototype.getBuildPath = function (cfg) {
 	this.taskQueue.push(cfg);
 	if(this.copyingSource || this.cloningBuild){
@@ -62,12 +51,16 @@ CopyBuild.prototype.startClone = function() {
 	var target = path.join(this.ROOT_BUILD_FOLDER, '\\' + dt);
 	fse.mkdirsSync(target);
 	log.writeLog("start to clone build");
-	fse.copySync(this.DEFAULT_LATEST_BUILD, target);
-	log.writeLog("end clone build");
-	task.srcFolder = target;
-	setPathBack(task);
-	this.cloningBuild = false;
-	this.startClone();
+	fse.copy(this.DEFAULT_LATEST_BUILD, target, err => {
+		if(err){
+			log.writeLog("clone build fail");
+		}
+		log.writeLog("end clone build");
+		task.srcFolder = target;
+		setPathBack(task);
+		this.cloningBuild = false;
+		this.startClone();
+	});
 }
 CopyBuild.prototype.copySourceBuild = function(){
 	this.copyingSource = true;
@@ -80,25 +73,41 @@ CopyBuild.prototype.copySourceBuild = function(){
 
 	log.writeLog("start to copy source");
 	//fse.copySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
-	this.__interCopySync(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
-	log.writeLog("end copy source");
-	this.copyingSource = false;
-	this.startClone();
+	this.__interCopy(this.SOURCE_BUILD_PATH, this.DEFAULT_LATEST_BUILD);
 }
 
-CopyBuild.prototype.__interCopySync = function(source, target){
-	var ret = true;
+CopyBuild.prototype.__interCopy = function(source, target){
+	var ret = true, _this = this;
 	try{
 		var exePath = path.join(__dirname, "/fastcopy/FastCopy.exe");
-		var retStr = child_process.execFileSync(exePath,["/cmd=diff", "/bufsize=1024", "/force_close", source, "/to=" + target],{cwd: __dirname});
-		//log.writeLog("copy result:");
-		//log.writeLog(retStr);
+		child_process.execFile(exePath,["/cmd=diff", "/bufsize=1024", "/force_close", source, "/to=" + target],{cwd: __dirname}, (error, stdout, stderr) => {
+			if(error){
+				log.writeLog("copy source error, error info: " + stderr);
+				return;
+			}
+			log.writeLog("end copy source");
+			this.copyingSource = false;
+			this.startClone();
+		});
 	} catch(ex){
 		ret = false;
 		fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
 	}
 
 	return ret;
+
+	// var ret = true;
+	// try{
+	// 	var exePath = path.join(__dirname, "/fastcopy/FastCopy.exe");
+	// 	var retStr = child_process.execFileSync(exePath,["/cmd=diff", "/bufsize=1024", "/force_close", source, "/to=" + target],{cwd: __dirname});
+	// 	//log.writeLog("copy result:");
+	// 	//log.writeLog(retStr);
+	// } catch(ex){
+	// 	ret = false;
+	// 	fs.writeFileSync(path.join(cfg.srcFolder, '/ciUncaughtException.txt'), ex);
+	// }
+    //
+	// return ret;
 }
 
 CopyBuild.prototype.hasNewBuild = function(){
