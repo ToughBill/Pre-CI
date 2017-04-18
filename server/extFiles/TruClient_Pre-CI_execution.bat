@@ -99,17 +99,17 @@ REM ****************************************************************************
 	REM ******************************* FireFox Scripts *****************************
 
 	set SysTest_FF_Interactive_replayScript=%tc_systest%\Scripts\SysTest_FF_Interactive\replayScript
-	set SysTest_FF_Interactive_recordReplayScript=%tc_systest%\Scripts\SysTest_FF_Interactive\recordReplayScript
+	REM set SysTest_FF_Interactive_recordReplayScript=%tc_systest%\Scripts\SysTest_FF_Interactive\recordReplayScript
 
 	if exist "%SysTest_FF_Interactive_replayScript%" rmdir /S /Q %SysTest_FF_Interactive_replayScript% || goto :errCopyFFscripts
 	if not exist "%SysTest_FF_Interactive_replayScript%" mkdir "%SysTest_FF_Interactive_replayScript%" || goto :errCopyFFscripts
 
-	if exist "%SysTest_FF_Interactive_recordReplayScript%" rmdir /S /Q %SysTest_FF_Interactive_recordReplayScript% || goto :errCopyFFscripts
-	if not exist "%SysTest_FF_Interactive_recordReplayScript%" mkdir "%SysTest_FF_Interactive_recordReplayScript%" || goto :errCopyFFscripts
+	REM if exist "%SysTest_FF_Interactive_recordReplayScript%" rmdir /S /Q %SysTest_FF_Interactive_recordReplayScript% || goto :errCopyFFscripts
+	REM if not exist "%SysTest_FF_Interactive_recordReplayScript%" mkdir "%SysTest_FF_Interactive_recordReplayScript%" || goto :errCopyFFscripts
 
 	xcopy %1\TC_DevTests\Scripts\CI\Replay\Common %SysTest_FF_Interactive_replayScript% /S /Y /D || goto :errCopyFFscripts
 	xcopy %1\TC_DevTests\Scripts\CI\Replay\Firefox %SysTest_FF_Interactive_replayScript% /S /Y /D || goto :errCopyFFscripts
-	xcopy %1\TC_DevTests\Scripts\CI\Record\Firefox %SysTest_FF_Interactive_recordReplayScript% /S /Y /D || goto :errCopyFFscripts
+	REM xcopy %1\TC_DevTests\Scripts\CI\Record\Firefox %SysTest_FF_Interactive_recordReplayScript% /S /Y /D || goto :errCopyFFscripts
 
 	REM ignore below scripts
 	if exist %SysTest_FF_Interactive_replayScript%\javascript_variables_defined_init_negative rmdir /S /Q  %SysTest_FF_Interactive_replayScript%\javascript_variables_defined_init_negative
